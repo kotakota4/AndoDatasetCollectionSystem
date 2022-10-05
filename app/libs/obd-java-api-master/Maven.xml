@@ -1,0 +1,5 @@
+<dependency>
+  <groupId>com.github.pires</groupId>
+  <artifactId>obd-java-api</artifactId>
+  <version>1.0</version>
+</dependency>

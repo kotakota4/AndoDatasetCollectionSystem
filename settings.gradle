@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "AndoDatasetCorrectionSystem"
+include ':app'
+include ':obd-java-api-master'
+project(':obd-java-api-master').projectDir = new File(rootDir, 'app/libs/obd-java-api-master/')
+include ':obd-java-api-master'
