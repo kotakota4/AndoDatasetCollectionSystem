@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "AndoDatasetCorrectionSystem"
+rootProject.name = "AndoDatasetCollectionSystem"
 include ':app'
 include ':obd-java-api-master'
 project(':obd-java-api-master').projectDir = new File(rootDir, 'app/libs/obd-java-api-master/')
