@@ -10,6 +10,7 @@ import android.os.DropBoxManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.BaseColumns;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,8 @@ import com.github.pires.obd.enums.ObdProtocols;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +73,8 @@ public class MainActivity2 extends AppCompatActivity {
         Button button = findViewById(R.id.button2);
         TextView textView1 = findViewById(R.id.textView5);
 
+
+
         class ObdOnClickListener implements View.OnClickListener {
             public void onClick(View v) {
 
@@ -95,23 +100,18 @@ public class MainActivity2 extends AppCompatActivity {
 
                 try {
                     status.setText("ステータス: connecting...");
-                    new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
-                    new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
+                    InputStream inputStream = socket.getInputStream();
+                    OutputStream outputStream = socket. getOutputStream();
+                    new EchoOffCommand().run(inputStream, outputStream);
+                    new LineFeedOffCommand().run(inputStream, outputStream);
+                    new TimeoutCommand(125).run(inputStream, outputStream);
+                    new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
 
                     Log.i("send","success connecting obd");
                     status.setText("ステータス: collecting");
                     t = new Timer();
-                    t.schedule(new TimerTaskRPM(), 0, 1000);
-
-//                    try {
-//                        Thread.sleep(5000);   // 定期実行を待って休止
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-
-                    //textView.setText("complete");
+                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
+                    //t.schedule(new TimerTaskRPM(), 0, 200);
 
                 } catch (Exception e) {
                     // handle errors
@@ -126,6 +126,7 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View view){
                 status.setText("ステータス: stopped");
+                textView.setText("特になし");
                 if(t == null) return;
                 t.cancel();
             }
@@ -192,18 +193,31 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     class TimerTaskRPM extends TimerTask {
+        InputStream inputStream;
+        OutputStream outputStream;
+        TimerTaskRPM(InputStream inputStream, OutputStream outputStream){
+            super();
+            this.inputStream = inputStream;
+            this.outputStream = outputStream;
+        }
         int numRPM;
+
         @Override
         public void run() {
             // handlerを使って処理をキューイングする
             handler.post(() -> {
+                long st, ed;
+                st = ed = 0;
                 try {
-                    rpmCommand.run(socket.getInputStream(), socket.getOutputStream());
+                    st = System. currentTimeMillis();
+                    rpmCommand.run(inputStream, outputStream);
+                    ed = System.currentTimeMillis();
                 } catch (IOException e){
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                Log.i("time", "time is " + Long.valueOf(ed-st).toString());
                 numRPM = rpmCommand.getRPM();
                 Log.i("send","sending rpmcommand" + Integer.valueOf(numRPM).toString());
                 rpm.setText("回転数" + Integer.valueOf(numRPM).toString());
