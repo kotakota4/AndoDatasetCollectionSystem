@@ -9,7 +9,9 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + FeedReaderContract.FeedEntry.TABLE_NAME + " (" +
                     FeedReaderContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_TIME + " INTEGER," +
-                    FeedReaderContract.FeedEntry.COLUMN_NAME_RPM + " INTEGER)";
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_RPM + " INTEGER," +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1 + " DOUBLE," +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2 + " DOUBLE )";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedReaderContract.FeedEntry.TABLE_NAME;

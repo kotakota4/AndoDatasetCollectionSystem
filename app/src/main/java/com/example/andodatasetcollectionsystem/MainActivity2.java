@@ -1,10 +1,14 @@
 package com.example.andodatasetcollectionsystem;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.DropBoxManager;
 import android.os.Handler;
@@ -19,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.pires.obd.commands.engine.RPMCommand;
@@ -40,22 +45,30 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity2 extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity implements LocationListener {
 
     BluetoothSocket socket;
+
+    LocationManager locationManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     TextView rpm;
     TextView status;
+    TextView locationText;
 
     private RPMCommand rpmCommand;
     private SQLiteDatabase db;
+
+    double latitude;
+    double longitude;
 
     Timer t;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        locationStart();
 
         FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(this);
         db = dbHelper.getWritableDatabase();
@@ -69,6 +82,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         status = findViewById(R.id.textView2);
         rpm = findViewById(R.id.textView3);
+        locationText = findViewById(R.id.textView6);
 
         Button button = findViewById(R.id.button2);
         TextView textView1 = findViewById(R.id.textView5);
@@ -78,7 +92,6 @@ public class MainActivity2 extends AppCompatActivity {
         class ObdOnClickListener implements View.OnClickListener {
             public void onClick(View v) {
 
-                ContentValues value = new ContentValues();
                 rpmCommand = new RPMCommand();
 
                 Connect connect = new Connect();
@@ -111,7 +124,6 @@ public class MainActivity2 extends AppCompatActivity {
                     status.setText("ステータス: collecting");
                     t = new Timer();
                     t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
-                    //t.schedule(new TimerTaskRPM(), 0, 200);
 
                 } catch (Exception e) {
                     // handle errors
@@ -141,14 +153,16 @@ public class MainActivity2 extends AppCompatActivity {
                 String[] projection = {
                         BaseColumns._ID,
                         FeedReaderContract.FeedEntry.COLUMN_NAME_TIME,
-                        FeedReaderContract.FeedEntry.COLUMN_NAME_RPM
+                        FeedReaderContract.FeedEntry.COLUMN_NAME_RPM,
+                        FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1,
+                        FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2
                 };
 
                 String selection = BaseColumns._ID + " > ?";
                 String[] selectionArgs = {"1"};
 
                 String sortOrder =
-                        FeedReaderContract.FeedEntry.COLUMN_NAME_RPM + " DESC";
+                        FeedReaderContract.FeedEntry.COLUMN_NAME_TIME + " DESC";
 
                 Cursor cursor = db.query(
                         FeedReaderContract.FeedEntry.TABLE_NAME,   // The table to query
@@ -165,8 +179,11 @@ public class MainActivity2 extends AppCompatActivity {
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME));
                     String rpm = cursor.getString(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM));
-                    text.append(milliToString(datetime) + ": " + rpm + "\n");
-                    Log.i("db", "loop");
+                    String gps1 = cursor.getString(
+                            cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1));
+                    String gps2 = cursor.getString(
+                            cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2));
+                    text.append(milliToString(datetime) + ": " + rpm + " " + gps1 + " " +  gps2 + "\n");
                 }
                 cursor.close();
                 textView1.setText(text.toString());
@@ -192,14 +209,33 @@ public class MainActivity2 extends AppCompatActivity {
         return sdf.format(mill);
     }
 
-    class TimerTaskRPM extends TimerTask {
+    @SuppressLint("MissingPermission")
+    private void locationStart(){
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 50, this);
+
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        locationText.setText("緯度 " + latitude + " 経度 " + longitude);
+    }
+
+    class TimerTaskRPM extends TimerTask{
         InputStream inputStream;
         OutputStream outputStream;
+
         TimerTaskRPM(InputStream inputStream, OutputStream outputStream){
             super();
             this.inputStream = inputStream;
             this.outputStream = outputStream;
         }
+
+
+
         int numRPM;
 
         @Override
@@ -225,6 +261,8 @@ public class MainActivity2 extends AppCompatActivity {
                 ContentValues values = new ContentValues();
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME, System.currentTimeMillis());
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM, numRPM);
+                values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1, latitude);
+                values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2, longitude);
                 db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
             });
         }

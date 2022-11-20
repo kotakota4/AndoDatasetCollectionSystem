@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.ACCESS_FINE_LOCATION
     };
     ActivityResultLauncher<String[]>
         requestPermissionsLauncher = registerForActivityResult(
@@ -81,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
                     // for ActivityCompat#requestPermissions for more details.
                     Log.e("Connect", "Failure to get permission for BLUETOOTH_CONNECT");
                     return ;
-                }if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                }
+                if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
                     // here to request the missing permissions, and then overriding
@@ -92,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Connect", "Failure to get permission for BLUETOOTH_SCAN");
                     return ;
                 }
+                if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e("permission check", "permission dined for GPS");
+                    return ;
+                }
 
                 if(connect.connectAdopter() == 0){
                     errorText.setText("アダプタと接続できんかった");
@@ -99,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(connect.connectOBD() == 0) {
+                    Intent intent = new Intent(getApplication(), MainActivity2.class);
+                    startActivity(intent);
                     errorText.setText("OBD見つけられんかった");
                     status = false;
                 }

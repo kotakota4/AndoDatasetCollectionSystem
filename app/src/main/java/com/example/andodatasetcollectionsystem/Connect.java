@@ -22,8 +22,6 @@ public class Connect extends AppCompatActivity implements Runnable{
     private final int FAILURE_ADAPTER = 0;
     private final int SUCCESS_FIND_OBD = 1;
     private final int FAILURE_FIND_OBD = 0;
-    private final int SUCCESS_CONNECT_SOCKET = 1;
-    private final int FAILURE_CONNECT_SOCKET = 0;
 
 
     private final UUID OBD_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
