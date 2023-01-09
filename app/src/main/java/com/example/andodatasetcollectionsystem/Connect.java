@@ -19,27 +19,32 @@ public class Connect extends AppCompatActivity implements Runnable{
     private BluetoothSocket socket;
 
     private final int SUCCESS_ADAPTER = 1;
-    private final int FAILURE_ADAPTER = 0;
     private final int SUCCESS_FIND_OBD = 1;
-    private final int FAILURE_FIND_OBD = 0;
-
 
     private final UUID OBD_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    protected String TAG = "BluetoothConnectThread";
 
-    public int connectAdopter() {
+    @SuppressLint("MissingPermission")
+    public Connect() throws NullPointerException{
+        try {
+            socket = obd.createRfcommSocketToServiceRecord(OBD_UUID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int connectAdopter() throws AdapterException.NoAdapterException {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Log.e("Connect", "Failure to connect adapter.");
-            return FAILURE_ADAPTER;
+            throw new AdapterException.NoAdapterException();
         }
         Log.i("Connect", "Success to connect adapter");
         return SUCCESS_ADAPTER;
     }
 
     @SuppressLint("MissingPermission")
-    public int connectOBD() {
+    public int connectOBD() throws AdapterException.NotFoundException{
 
         Set<BluetoothDevice> pairedDevices;
 
@@ -53,21 +58,22 @@ public class Connect extends AppCompatActivity implements Runnable{
                 }
             }
         }
-        Log.e("Connect", "Failure to find obd");
-        return FAILURE_FIND_OBD;
+        throw new AdapterException.NotFoundException();
     }
 
-    public BluetoothSocket getSocket() {
+    public BluetoothSocket getSocket() throws IOException{
+        if(socket == null) throw new IOException();
         return socket;
-
     }
 
     @SuppressLint("MissingPermission")
     public void run(){
         bluetoothAdapter.cancelDiscovery();
+        if(this.socket == null){
+            return;
+        }
 
         try {
-            socket = obd.createRfcommSocketToServiceRecord(OBD_UUID);
             socket.connect();
 
         } catch (IOException e) {
@@ -82,6 +88,7 @@ public class Connect extends AppCompatActivity implements Runnable{
             }
             return;
         }
-        //Log.e("Connect", "Failure to get socket");
     }
 }
+
+

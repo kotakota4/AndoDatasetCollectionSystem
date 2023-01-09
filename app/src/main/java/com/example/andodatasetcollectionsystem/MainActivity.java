@@ -15,26 +15,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.material.snackbar.Snackbar;
 
-    BluetoothSocket socket;
-    private final int REQUEST_CODE = 1;
-    private final int REQUEST_CODE2 = 2;
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity {
 
     String[] PERMISSIONS = {
             Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_COARSE_LOCATION
     };
+
     ActivityResultLauncher<String[]>
         requestPermissionsLauncher = registerForActivityResult(
         new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
-            if (isGranted.containsValue(false)) {
-                // Denied
-            } else {
-                // Permitted
-            }
-        });
+            });
+
+    //Snackbar mySnackbar = Snackbar.make(findViewById(R.id.), R.string.popup_message_for_debug_mode, Snackbar.LENGTH_LONG);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,77 +51,40 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-//        ActivityCompat.requestPermissions(this, new String[]{
-//                Manifest.permission.BLUETOOTH_CONNECT
-//        }, REQUEST_CODE);
-//
-//        ActivityCompat.requestPermissions(this, new String[]{
-//                Manifest.permission.BLUETOOTH_SCAN
-//        }, REQUEST_CODE2);
-
         Button connectButton = findViewById(R.id.button);
         TextView errorText = findViewById(R.id.errorText);
 
-        class MyOnClickListener implements View.OnClickListener {
-            MainActivity mainActivity;
-
-            MyOnClickListener(MainActivity mainActivity){
-                this.mainActivity = mainActivity;
-            }
+        class ConnectButtonOnClickListener implements View.OnClickListener{
             @Override
             public void onClick(View v) {
-
-                Connect connect = new Connect();
-                boolean status = true;
-                if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.e("Connect", "Failure to get permission for BLUETOOTH_CONNECT");
-                    return ;
-                }
-                if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.e("Connect", "Failure to get permission for BLUETOOTH_SCAN");
-                    return ;
-                }
-                if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("permission check", "permission dined for GPS");
-                    return ;
-                }
-
-                if(connect.connectAdopter() == 0){
-                    errorText.setText("アダプタと接続できんかった");
-                    status = false;
-                }
-
-                if(connect.connectOBD() == 0) {
-                    Intent intent = new Intent(getApplication(), MainActivity2.class);
-                    startActivity(intent);
-                    errorText.setText("OBD見つけられんかった");
-                    status = false;
-                }
-
-                if(status) {
+                errorText.setText("接続中...");
+                try{
+                    Connect connect = new Connect();
+                    connect.connectAdopter();
+                    connect.connectOBD();
                     Intent intent = new Intent(getApplication(), MainActivity2.class);
                     startActivity(intent);//画面遷移
+                }catch (AdapterException.NoAdapterException e){
+                    errorText.setText("アダプタと接続できんかった");
+                }catch (AdapterException.NotFoundException e1){
+                    errorText.setText("OBD見つけられんかった");
+                }catch (NullPointerException e2){
+                    errorText.setText("OBDとの通信に失敗");
                 }
             }
         }
 
-        MyOnClickListener onClickListener = new MyOnClickListener(this);
+        class ConnectButtonOnLongClickListener implements View.OnLongClickListener{
+            @Override
+            public boolean onLongClick(View view) {
+                Log.i("MainActivity","long clicked");
+                Intent intent = new Intent(getApplication(), MainActivity2.class);
+                startActivity(intent);//画面遷移
+                return true;
+            }
+        }
 
-        connectButton.setOnClickListener(onClickListener);
-
+        connectButton.setOnClickListener(new ConnectButtonOnClickListener());
+        connectButton.setOnLongClickListener(new ConnectButtonOnLongClickListener());
     }
 }

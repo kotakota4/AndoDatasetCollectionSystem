@@ -94,19 +94,24 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
 
                 rpmCommand = new RPMCommand();
 
-                Connect connect = new Connect();
-                connect.connectAdopter();
-                connect.connectOBD();
-                new Thread(connect).start();
-
                 try {
+                    Connect connect = new Connect();
+                    connect.connectAdopter();
+                    connect.connectOBD();
+                    new Thread(connect).start();
                     Thread.sleep(2000);
+                    socket = connect.getSocket();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-
-                socket = connect.getSocket();
-                if (socket == null) {
+                } catch (AdapterException.NotFoundException e1){
+                    textView.setText("OBDにアクセスできんかった");
+                    Log.e("MainActivity2", "Error at OBD" + e1.toString());
+                    return;
+                } catch (AdapterException.NoAdapterException e2) {
+                    textView.setText("OBDが検出されなかった");
+                    Log.e("MainActivity2", "Error at connection between OBD and smartphone" + e2.toString());
+                    return;
+                }catch (NullPointerException | IOException e3) {
                     textView.setText("接続失敗, socketが空だった");
                     return;
                 }
