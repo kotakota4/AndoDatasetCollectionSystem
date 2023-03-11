@@ -61,7 +61,7 @@ public class Connect extends AppCompatActivity implements Runnable{
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 Log.i("Connect","Success to find " + device.getName());
-                if (device.getName().equals("DESKTOP-ATC5ELK")) {//DESKTOP-ATC5ELK     OBDII  UMPC-03-SR
+                if (device.getName().equals("OBDII")) {//DESKTOP-ATC5ELK     OBDII  UMPC-03-SR
                     obd = device;
                     return SUCCESS_FIND_OBD;
                 }
