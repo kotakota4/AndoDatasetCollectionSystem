@@ -131,7 +131,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
 
                     Log.i("send","success connecting obd");
                     t = new Timer();
-                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
+                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 1000);
                     status.setText("ステータス: collecting");
 
                 } catch (Exception e) {
@@ -224,7 +224,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     @SuppressLint("MissingPermission")
     private void locationStart(){
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 50, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
 
     }
 
