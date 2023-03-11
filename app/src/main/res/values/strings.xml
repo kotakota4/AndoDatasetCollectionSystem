@@ -5,6 +5,7 @@
     <string name="message_for_rpm_textview">rpm</string>
     <string name="error_log_textview">特になし</string>
     <string name="location_log_textview">緯度 - 経度 - </string>
+    <string name="throttle_textview">スロットルポジション</string>
     <string name="log_for_textview">-</string>
     <string name="text_in_button">log</string>
     <string name="save_button">save</string>

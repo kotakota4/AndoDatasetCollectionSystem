@@ -10,6 +10,7 @@ public class FeedReaderDbHelper extends SQLiteOpenHelper {
                     FeedReaderContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_TIME + " INTEGER," +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_RPM + " INTEGER," +
+                    FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE + "FLOAT," +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1 + " DOUBLE," +
                     FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2 + " DOUBLE )";
 

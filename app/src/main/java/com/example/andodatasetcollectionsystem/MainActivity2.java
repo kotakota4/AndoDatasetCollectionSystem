@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -48,7 +49,6 @@ import java.util.TimerTask;
 public class MainActivity2 extends AppCompatActivity implements LocationListener {
 
     BluetoothSocket socket;
-
     LocationManager locationManager;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -56,8 +56,10 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     TextView rpm;
     TextView status;
     TextView locationText;
+    TextView throttle;
 
     private RPMCommand rpmCommand;
+    private ThrottlePositionCommand throttlePositionCommand;
     private SQLiteDatabase db;
 
     double latitude;
@@ -83,6 +85,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
         status = findViewById(R.id.textView2);
         rpm = findViewById(R.id.textView3);
         locationText = findViewById(R.id.textView6);
+        throttle = findViewById(R.id.textView8);
 
         Button button = findViewById(R.id.button2);
         TextView textView1 = findViewById(R.id.textView5);
@@ -93,6 +96,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
             public void onClick(View v) {
 
                 rpmCommand = new RPMCommand();
+                throttlePositionCommand = new ThrottlePositionCommand();
 
                 try {
                     Connect connect = new Connect();
@@ -126,9 +130,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
 
                     Log.i("send","success connecting obd");
-                    status.setText("ステータス: collecting");
                     t = new Timer();
                     t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
+                    status.setText("ステータス: collecting");
 
                 } catch (Exception e) {
                     // handle errors
@@ -159,6 +163,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                         BaseColumns._ID,
                         FeedReaderContract.FeedEntry.COLUMN_NAME_TIME,
                         FeedReaderContract.FeedEntry.COLUMN_NAME_RPM,
+                        FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE,
                         FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1,
                         FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2
                 };
@@ -184,11 +189,13 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME));
                     String rpm = cursor.getString(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM));
+                    String throttle = cursor.getString(
+                            cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE));
                     String gps1 = cursor.getString(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1));
                     String gps2 = cursor.getString(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2));
-                    text.append(milliToString(datetime) + ": " + rpm + " " + gps1 + " " +  gps2 + "\n");
+                    text.append(milliToString(datetime) + ": " + rpm + " " + throttle + " " + gps1 + " " +  gps2 + "\n");
                 }
                 cursor.close();
                 textView1.setText(text.toString());
@@ -242,6 +249,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
 
 
         int numRPM;
+        float numThrottle;
 
         @Override
         public void run() {
@@ -252,6 +260,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 try {
                     st = System. currentTimeMillis();
                     rpmCommand.run(inputStream, outputStream);
+                    throttlePositionCommand.run(inputStream,outputStream);
                     ed = System.currentTimeMillis();
                 } catch (IOException e){
                     e.printStackTrace();
@@ -260,12 +269,15 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 }
                 Log.i("time", "time is " + Long.valueOf(ed-st).toString());
                 numRPM = rpmCommand.getRPM();
+                numThrottle = throttlePositionCommand.getPercentage();
                 Log.i("send","sending rpmcommand" + Integer.valueOf(numRPM).toString());
                 rpm.setText("回転数" + Integer.valueOf(numRPM).toString());
+                throttle.setText("スロットルポジション" + Float.valueOf(numThrottle).toString());
 
                 ContentValues values = new ContentValues();
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME, System.currentTimeMillis());
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM, numRPM);
+                values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE, numThrottle);
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1, latitude);
                 values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2, longitude);
                 db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
