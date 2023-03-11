@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     errorText.setText("OBD見つけられんかった");
                 }catch (NullPointerException e2){
                     errorText.setText("OBDとの通信に失敗");
+                    Log.e("MainActivity",e2.toString());
                 }
             }
         }

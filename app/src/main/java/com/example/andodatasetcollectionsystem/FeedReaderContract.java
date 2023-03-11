@@ -13,6 +13,7 @@ public final class FeedReaderContract {
         public static final String TABLE_NAME = "dataset";
         public static final String COLUMN_NAME_TIME = "time";
         public static final String COLUMN_NAME_RPM = "rpm";
+        public static final String COLUMN_NAME_THROTTLE = "throttle";
         public static final String COLUMN_NAME_GPS_1 = "latitude";
         public static final String COLUMN_NAME_GPS_2 = "longitude";
     }

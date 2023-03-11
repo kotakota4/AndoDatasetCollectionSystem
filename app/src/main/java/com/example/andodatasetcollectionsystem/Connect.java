@@ -25,11 +25,20 @@ public class Connect extends AppCompatActivity implements Runnable{
 
     @SuppressLint("MissingPermission")
     public Connect() throws NullPointerException{
-        try {
+        try{
+            this.connectAdopter();
+            this.connectOBD();
             socket = obd.createRfcommSocketToServiceRecord(OBD_UUID);
-        } catch (IOException e) {
-            e.printStackTrace();
+        }catch(AdapterException.NotFoundException e1){
+            Log.e("Connect", e1.toString());
+        }catch (IOException e2){
+            Log.e("Connect", e2.toString());
+        } catch (AdapterException.NoAdapterException e3) {
+            Log.e("Connect", e3.toString());
+            e3.printStackTrace();
         }
+
+
     }
 
     public int connectAdopter() throws AdapterException.NoAdapterException {
@@ -52,7 +61,7 @@ public class Connect extends AppCompatActivity implements Runnable{
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 Log.i("Connect","Success to find " + device.getName());
-                if (device.getName().equals("OBDII")) {//DESKTOP-ATC5ELK     OBDII
+                if (device.getName().equals("DESKTOP-ATC5ELK")) {//DESKTOP-ATC5ELK     OBDII
                     obd = device;
                     return SUCCESS_FIND_OBD;
                 }
@@ -67,11 +76,8 @@ public class Connect extends AppCompatActivity implements Runnable{
     }
 
     @SuppressLint("MissingPermission")
-    public void run(){
+    public void run() {
         bluetoothAdapter.cancelDiscovery();
-        if(this.socket == null){
-            return;
-        }
 
         try {
             socket.connect();
