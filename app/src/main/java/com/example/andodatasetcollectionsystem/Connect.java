@@ -29,10 +29,8 @@ public class Connect extends AppCompatActivity implements Runnable{
             this.connectAdopter();
             this.connectOBD();
             socket = obd.createRfcommSocketToServiceRecord(OBD_UUID);
-        }catch(AdapterException.NotFoundException e1){
+        }catch(AdapterException.NotFoundException | IOException e1){
             Log.e("Connect", e1.toString());
-        }catch (IOException e2){
-            Log.e("Connect", e2.toString());
         } catch (AdapterException.NoAdapterException e3) {
             Log.e("Connect", e3.toString());
             e3.printStackTrace();
@@ -83,7 +81,7 @@ public class Connect extends AppCompatActivity implements Runnable{
             socket.connect();
 
         } catch (IOException e) {
-            Log.e("Connect","Failure in connection" + e.toString());
+            Log.e("Connect","Failure in connection" + e);
             e.printStackTrace();
             try{
                 Log.i("Connect", "closing the socket");
@@ -92,7 +90,6 @@ public class Connect extends AppCompatActivity implements Runnable{
                 Log.e("Connect", "Failure to close socket");
                 e1.printStackTrace();
             }
-            return;
         }
     }
 }

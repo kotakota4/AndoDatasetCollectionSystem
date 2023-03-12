@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
+import com.github.pires.obd.commands.protocol.AdaptiveTimingCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -109,11 +110,11 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     e.printStackTrace();
                 } catch (AdapterException.NotFoundException e1){
                     textView.setText("OBDにアクセスできんかった");
-                    Log.e("MainActivity2", "Error at OBD" + e1.toString());
+                    Log.e("MainActivity2", "Error at OBD" + e1);
                     return;
                 } catch (AdapterException.NoAdapterException e2) {
                     textView.setText("OBDが検出されなかった");
-                    Log.e("MainActivity2", "Error at connection between OBD and smartphone" + e2.toString());
+                    Log.e("MainActivity2", "Error at connection between OBD and smartphone" + e2);
                     return;
                 }catch (NullPointerException | IOException e3) {
                     textView.setText("接続失敗, socketが空だった");
@@ -126,9 +127,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     OutputStream outputStream = socket. getOutputStream();
                     new EchoOffCommand().run(inputStream, outputStream);
                     new LineFeedOffCommand().run(inputStream, outputStream);
-                    new TimeoutCommand(125).run(inputStream, outputStream);
+                    new TimeoutCommand(25).run(inputStream, outputStream);
                     new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
-
+                    new AdaptiveTimingCommand(2).run(inputStream, outputStream);
                     Log.i("send","success connecting obd");
                     t = new Timer();
                     t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 1000);
@@ -255,19 +256,15 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
         public void run() {
             // handlerを使って処理をキューイングする
             handler.post(() -> {
-                long st, ed;
-                st = ed = 0;
                 try {
-                    st = System. currentTimeMillis();
                     rpmCommand.run(inputStream, outputStream);
                     throttlePositionCommand.run(inputStream,outputStream);
-                    ed = System.currentTimeMillis();
                 } catch (IOException e){
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Log.i("time", "time is " + Long.valueOf(ed-st).toString());
+                Log.i("time", "time is " + Long.valueOf(throttlePositionCommand.getEnd()-rpmCommand.getStart()).toString());
                 numRPM = rpmCommand.getRPM();
                 numThrottle = throttlePositionCommand.getPercentage();
                 Log.i("send","sending rpmcommand" + Integer.valueOf(numRPM).toString());
