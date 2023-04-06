@@ -132,7 +132,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     new AdaptiveTimingCommand(2).run(inputStream, outputStream);
                     Log.i("send","success connecting obd");
                     t = new Timer();
-                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 1000);
+                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
                     status.setText("ステータス: collecting");
 
                 } catch (Exception e) {

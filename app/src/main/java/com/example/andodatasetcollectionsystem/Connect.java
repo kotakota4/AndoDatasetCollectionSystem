@@ -20,7 +20,6 @@ public class Connect extends AppCompatActivity implements Runnable{
 
     private final int SUCCESS_ADAPTER = 1;
     private final int SUCCESS_FIND_OBD = 1;
-
     private final UUID OBD_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @SuppressLint("MissingPermission")
