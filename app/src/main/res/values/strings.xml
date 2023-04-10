@@ -4,6 +4,9 @@
     <string name="massage_for_status_textview">ステータス</string>
     <string name="message_for_rpm_textview">rpm</string>
     <string name="error_log_textview">特になし</string>
+    <string name="error_log_NoAdapter">アダプタと接続できんかった</string>
+    <string name="error_log_NotFoundAdapter">OBD見つけられんかった</string>
+    <string name="error_log_NullPointer">ぬるぽ</string>
     <string name="location_log_textview">緯度 - 経度 - </string>
     <string name="throttle_textview">スロットルポジション</string>
     <string name="log_for_textview">-</string>

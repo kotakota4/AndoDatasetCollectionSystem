@@ -65,11 +65,11 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplication(), MainActivity2.class);
                     startActivity(intent);//画面遷移
                 }catch (AdapterException.NoAdapterException e){
-                    errorText.setText("アダプタと接続できんかった");
+                    errorText.setText(R.string.error_log_NoAdapter);
                 }catch (AdapterException.NotFoundException e1){
-                    errorText.setText("OBD見つけられんかった");
+                    errorText.setText(R.string.error_log_NotFoundAdapter);
                 }catch (NullPointerException e2){
-                    errorText.setText("OBDとの通信に失敗");
+                    errorText.setText(R.string.error_log_NullPointer);
                     Log.e("MainActivity",e2.toString());
                 }
             }

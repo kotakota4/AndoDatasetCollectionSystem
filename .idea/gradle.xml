@@ -14,7 +14,6 @@
             <option value="$PROJECT_DIR$/app/libs/obd-java-api-master" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

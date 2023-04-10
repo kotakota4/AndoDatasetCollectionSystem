@@ -18,12 +18,9 @@ public class Connect extends AppCompatActivity implements Runnable{
     private BluetoothDevice obd;
     private BluetoothSocket socket;
 
-    private final int SUCCESS_ADAPTER = 1;
-    private final int SUCCESS_FIND_OBD = 1;
-    private final UUID OBD_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
     @SuppressLint("MissingPermission")
     public Connect() throws NullPointerException{
+        UUID OBD_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         try{
             this.connectAdopter();
             this.connectOBD();
@@ -38,7 +35,7 @@ public class Connect extends AppCompatActivity implements Runnable{
 
     }
 
-    public int connectAdopter() throws AdapterException.NoAdapterException {
+    public void connectAdopter() throws AdapterException.NoAdapterException {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -46,11 +43,10 @@ public class Connect extends AppCompatActivity implements Runnable{
             throw new AdapterException.NoAdapterException();
         }
         Log.i("Connect", "Success to connect adapter");
-        return SUCCESS_ADAPTER;
     }
 
     @SuppressLint("MissingPermission")
-    public int connectOBD() throws AdapterException.NotFoundException{
+    public void connectOBD() throws AdapterException.NotFoundException{
 
         Set<BluetoothDevice> pairedDevices;
 
@@ -60,7 +56,7 @@ public class Connect extends AppCompatActivity implements Runnable{
                 Log.i("Connect","Success to find " + device.getName());
                 if (device.getName().equals("OBDII")) {//DESKTOP-ATC5ELK     OBDII  UMPC-03-SR
                     obd = device;
-                    return SUCCESS_FIND_OBD;
+                    return;
                 }
             }
         }
