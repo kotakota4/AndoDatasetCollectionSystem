@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">AndoDatasetCollectionSystem</string>
+    <string name="Version">1.6α</string>
     <string name="back_button">back</string>
     <string name="massage_for_status_textview">ステータス</string>
     <string name="message_for_rpm_textview">rpm</string>
