@@ -59,8 +59,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     TextView locationText;
     TextView throttle;
 
-    private RPMCommand rpmCommand;
-    private ThrottlePositionCommand throttlePositionCommand;
+    //private RPMCommand rpmCommand;
+    private RPMCommand2 rpmCommand;
+    private ThrottlePositionCommand2 throttlePositionCommand;
     private SQLiteDatabase db;
 
     double latitude;
@@ -96,8 +97,8 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
         class ObdOnClickListener implements View.OnClickListener {
             public void onClick(View v) {
 
-                rpmCommand = new RPMCommand();
-                throttlePositionCommand = new ThrottlePositionCommand();
+                rpmCommand = new RPMCommand2();
+                throttlePositionCommand = new ThrottlePositionCommand2();
 
                 try {
                     Connect connect = new Connect();
@@ -126,10 +127,15 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     InputStream inputStream = socket.getInputStream();
                     OutputStream outputStream = socket. getOutputStream();
                     new EchoOffCommand().run(inputStream, outputStream);
+                    Thread.sleep(1000);
                     new LineFeedOffCommand().run(inputStream, outputStream);
-                    new TimeoutCommand(25).run(inputStream, outputStream);
+                    Thread.sleep(1000);
+                    //new TimeoutCommand(125).run(inputStream, outputStream);
+                    //Thread.sleep(1000);
                     new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
-                    new AdaptiveTimingCommand(2).run(inputStream, outputStream);
+                    Thread.sleep(1000);
+
+                    //Thread.sleep(1000);
                     Log.i("send","success connecting obd");
                     t = new Timer();
                     t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
