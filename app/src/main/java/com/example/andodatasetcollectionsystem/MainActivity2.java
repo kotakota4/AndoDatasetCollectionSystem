@@ -104,8 +104,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     Connect connect = new Connect();
                     connect.connectAdopter();
                     connect.connectOBD();
+                    Thread.sleep(500);
                     new Thread(connect).start();
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                     socket = connect.getSocket();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -128,12 +129,16 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     OutputStream outputStream = socket. getOutputStream();
                     new EchoOffCommand().run(inputStream, outputStream);
                     Thread.sleep(1000);
+                    status.setText("ステータス: connecting...(4/1)");
                     new LineFeedOffCommand().run(inputStream, outputStream);
                     Thread.sleep(1000);
+                    status.setText("ステータス: connecting...(4/2)");
                     new TimeoutCommand(125).run(inputStream, outputStream);
                     Thread.sleep(1000);
-                    new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
+                    status.setText("ステータス: connecting...(4/3)");
+                    new SelectProtocolCommand(ObdProtocols.ISO_14230_4_KWP_FAST).run(inputStream, outputStream);
                     Thread.sleep(1000);
+                    status.setText("ステータス: connecting...(4/4)");
 
                     //Thread.sleep(1000);
                     Log.i("send","success connecting obd");
