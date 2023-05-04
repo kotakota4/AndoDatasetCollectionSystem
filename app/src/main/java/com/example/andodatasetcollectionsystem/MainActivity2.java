@@ -1,6 +1,7 @@
 package com.example.andodatasetcollectionsystem;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.DropBoxManager;
 import android.os.Handler;
@@ -40,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,7 +62,6 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     TextView locationText;
     TextView throttle;
 
-    //private RPMCommand rpmCommand;
     private RPMCommand2 rpmCommand;
     private ThrottlePositionCommand2 throttlePositionCommand;
     private SQLiteDatabase db;
@@ -84,12 +86,14 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
         TextView textView = findViewById(R.id.textView4);
         ImageButton imageButton1 = findViewById(R.id.imageButton2);
 
+
         status = findViewById(R.id.textView2);
         rpm = findViewById(R.id.textView3);
         locationText = findViewById(R.id.textView6);
         throttle = findViewById(R.id.textView8);
 
         Button button = findViewById(R.id.button2);
+        Button buttonForSave = findViewById(R.id.button3);
         TextView textView1 = findViewById(R.id.textView5);
 
 
@@ -132,7 +136,8 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     Thread.sleep(1000);
                     //new TimeoutCommand(125).run(inputStream, outputStream);
                     //Thread.sleep(1000);
-                    new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
+                    new SelectProtocolCommand(ObdProtocols.ISO_14230_4_KWP_FAST).run(inputStream, outputStream);
+
                     Thread.sleep(1000);
 
                     //Thread.sleep(1000);
@@ -157,6 +162,16 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 textView.setText("特になし");
                 if(t == null) return;
                 t.cancel();
+            }
+        }
+
+        class ButtonForSaveListener implements View.OnClickListener{
+            @Override
+            public void onClick(View view){
+                Uri uri = Uri.parse("/data");
+                CreateCsv createCsv = new CreateCsv(MainActivity2.this, db);
+                createCsv.fileOpen();
+                createCsv.exportCsv_for_SAF(uri);
             }
         }
 
@@ -208,6 +223,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 textView1.setText(text.toString());
             }
         }
+
+        ButtonForSaveListener buttonForSaveListener = new ButtonForSaveListener();
+        buttonForSave.setOnClickListener(buttonForSaveListener);
 
         ObdOnClickListener onClickListener = new ObdOnClickListener();
         imageButton.setOnClickListener(onClickListener);
