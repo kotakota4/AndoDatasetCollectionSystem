@@ -1,2 +1,10 @@
-　# AndoDatasetCollectionSystemとは
+# AndoDatasetCollectionSystemとは
+<img src=img/top.png>
+車のエンジン回転数 スロットルポジション スマホGPSによる位置情報を含むデータセットを作成するAndroidアプリケーションです。
+
+OBD2機能を持つ車は、診断情報のほかにもエンジン回転数をはじめとする走行情報をOBD2カプラ経由で通信できます。このアプリケーションは、OBD2ｰBluetooth変換トグルを用いて、車両情報をBluetooth経由で収集するアプリケーションです。データセットはDBとしてスマホ内部で保持し、CSV形式による保存に対応しました。通信中時に、このアプリはテキストとタコメータによる視覚的車両情報を表示します。タコメータがない車両はタコメータとしても使用できます。
+
+# 動作環境
+- Android
+- OBD2-Bluetoothトグル　https://amzn.asia/d/3xTakmA
 
