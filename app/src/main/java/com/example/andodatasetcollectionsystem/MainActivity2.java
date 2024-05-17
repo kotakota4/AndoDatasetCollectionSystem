@@ -104,9 +104,8 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     Connect connect = new Connect();
                     connect.connectAdopter();
                     connect.connectOBD();
-                    Thread.sleep(500);
                     new Thread(connect).start();
-                    Thread.sleep(500);
+                    Thread.sleep(2000);
                     socket = connect.getSocket();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -129,21 +128,17 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     OutputStream outputStream = socket. getOutputStream();
                     new EchoOffCommand().run(inputStream, outputStream);
                     Thread.sleep(1000);
-                    status.setText("ステータス: connecting...(4/1)");
                     new LineFeedOffCommand().run(inputStream, outputStream);
                     Thread.sleep(1000);
-                    status.setText("ステータス: connecting...(4/2)");
-                    new TimeoutCommand(125).run(inputStream, outputStream);
+                    //new TimeoutCommand(125).run(inputStream, outputStream);
+                    //Thread.sleep(1000);
+                    new SelectProtocolCommand(ObdProtocols.AUTO).run(inputStream, outputStream);
                     Thread.sleep(1000);
-                    status.setText("ステータス: connecting...(4/3)");
-                    new SelectProtocolCommand(ObdProtocols.ISO_14230_4_KWP_FAST).run(inputStream, outputStream);
-                    Thread.sleep(1000);
-                    status.setText("ステータス: connecting...(4/4)");
 
                     //Thread.sleep(1000);
                     Log.i("send","success connecting obd");
                     t = new Timer();
-                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 1000);
+                    t.scheduleAtFixedRate(new TimerTaskRPM(inputStream, outputStream), new Date(), 500);
                     status.setText("ステータス: collecting");
 
                 } catch (Exception e) {
@@ -237,6 +232,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     private void locationStart(){
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -250,14 +246,17 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
     class TimerTaskRPM extends TimerTask{
         InputStream inputStream;
         OutputStream outputStream;
-        int numRPM;
-        float numThrottle;
 
         TimerTaskRPM(InputStream inputStream, OutputStream outputStream){
             super();
             this.inputStream = inputStream;
             this.outputStream = outputStream;
         }
+
+
+
+        int numRPM;
+        float numThrottle;
 
         @Override
         public void run() {
@@ -266,7 +265,9 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 try {
                     rpmCommand.run(inputStream, outputStream);
                     throttlePositionCommand.run(inputStream,outputStream);
-                } catch (IOException | InterruptedException e){
+                } catch (IOException e){
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 Log.i("time", "time is " + Long.valueOf(throttlePositionCommand.getEnd()-rpmCommand.getStart()).toString());
