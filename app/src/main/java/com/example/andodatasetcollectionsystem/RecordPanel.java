@@ -3,7 +3,6 @@ package com.example.andodatasetcollectionsystem;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,35 +11,27 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.DropBoxManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.BaseColumns;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.pires.obd.commands.engine.RPMCommand;
-import com.github.pires.obd.commands.engine.ThrottlePositionCommand;
-import com.github.pires.obd.commands.protocol.AdaptiveTimingCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,13 +39,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity2 extends AppCompatActivity implements LocationListener {
+public class RecordPanel extends AppCompatActivity implements LocationListener {
 
     BluetoothSocket socket;
     LocationManager locationManager;
@@ -129,7 +118,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
             OutputStream os = getContentResolver().openOutputStream(openFile);
             OutputStreamWriter os_write = new OutputStreamWriter(os, Charset.forName("Shift_JIS"));
             PrintWriter pw = new PrintWriter(os_write);
-            FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(this);
+            DbHelper dbHelper = new DbHelper(this);
             db = dbHelper.getReadableDatabase();
 
             String[] projection = {
@@ -205,7 +194,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
 
         locationStart();
 
-        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
         db = dbHelper.getWritableDatabase();
 
         super.onCreate(savedInstanceState);
@@ -243,11 +232,11 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                     e.printStackTrace();
                 } catch (AdapterException.NotFoundException e1) {
                     textView.setText("OBDにアクセスできんかった");
-                    Log.e("MainActivity2", "Error at OBD" + e1);
+                    Log.e("RecordPanel", "Error at OBD" + e1);
                     return;
                 } catch (AdapterException.NoAdapterException e2) {
                     textView.setText("OBDが検出されなかった");
-                    Log.e("MainActivity2", "Error at connection between OBD and smartphone" + e2);
+                    Log.e("RecordPanel", "Error at connection between OBD and smartphone" + e2);
                     return;
                 } catch (NullPointerException | IOException e3) {
                     textView.setText("接続失敗, socketが空だった");
@@ -280,7 +269,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
                 } catch (Exception e) {
                     // handle errors
                     textView.setText("OBDにアクセスできんかった");
-                    Log.e("MainActivity2", "Error at connection between OBD and smartphone" + e);
+                    Log.e("RecordPanel", "Error at connection between OBD and smartphone" + e);
                 }
             }
         }
@@ -301,7 +290,7 @@ public class MainActivity2 extends AppCompatActivity implements LocationListener
             @Override
             public void onClick(View view) {
                 fileopen_for_SAF();
-                Log.i("MainActivity2","pushed");
+                Log.i("RecordPanel","pushed");
             }
         }
         class DbShowOnClickListener implements View.OnClickListener {

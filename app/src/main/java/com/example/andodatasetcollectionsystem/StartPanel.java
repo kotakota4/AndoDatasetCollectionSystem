@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -15,11 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import java.io.IOException;
-
-public class MainActivity extends AppCompatActivity {
+public class StartPanel extends AppCompatActivity {
 
     String[] PERMISSIONS = {
             Manifest.permission.BLUETOOTH_CONNECT,
@@ -62,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                     Connect connect = new Connect();
                     connect.connectAdopter();
                     connect.connectOBD();
-                    Intent intent = new Intent(getApplication(), MainActivity2.class);
+                    Intent intent = new Intent(getApplication(), RecordPanel.class);
                     startActivity(intent);//画面遷移
                 }catch (AdapterException.NoAdapterException e){
                     errorText.setText(R.string.error_log_NoAdapter);
@@ -70,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                     errorText.setText(R.string.error_log_NotFoundAdapter);
                 }catch (NullPointerException e2){
                     errorText.setText(R.string.error_log_NullPointer);
-                    Log.e("MainActivity",e2.toString());
+                    Log.e("StartPanel",e2.toString());
                 }
             }
         }
@@ -78,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         class ConnectButtonOnLongClickListener implements View.OnLongClickListener{
             @Override
             public boolean onLongClick(View view) {
-                Log.i("MainActivity","long clicked");
-                Intent intent = new Intent(getApplication(), MainActivity2.class);
+                Log.i("StartPanel","long clicked");
+                Intent intent = new Intent(getApplication(), RecordPanel.class);
                 startActivity(intent);//画面遷移
                 return true;
             }

@@ -9,10 +9,11 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
-public class Connect extends AppCompatActivity implements Runnable{
+public class Connect extends AppCompatActivity implements Runnable, Serializable {
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice obd;

@@ -1,7 +1,7 @@
 package com.example.andodatasetcollectionsystem;
 
-import static com.example.andodatasetcollectionsystem.MainActivity2.milliToString;
-import static java.util.Calendar.MILLISECOND;
+import static com.example.andodatasetcollectionsystem.RecordPanel.milliToString;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;

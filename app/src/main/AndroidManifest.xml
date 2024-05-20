@@ -16,11 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndoDatasetCorrectionSystem">
         <activity
-            android:name="com.example.andodatasetcollectionsystem.MainActivity2"
+            android:name="com.example.andodatasetcollectionsystem.RecordPanel"
             android:exported="false" />
 
         <activity
-            android:name="com.example.andodatasetcollectionsystem.MainActivity"
+            android:name="com.example.andodatasetcollectionsystem.StartPanel"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
