@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
-public class Connect extends AppCompatActivity implements Runnable, Serializable {
+public class Connect extends AppCompatActivity implements Runnable {
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice obd;
@@ -32,8 +32,6 @@ public class Connect extends AppCompatActivity implements Runnable, Serializable
             Log.e("Connect", e3.toString());
             e3.printStackTrace();
         }
-
-
     }
 
     public void connectAdopter() throws AdapterException.NoAdapterException {
