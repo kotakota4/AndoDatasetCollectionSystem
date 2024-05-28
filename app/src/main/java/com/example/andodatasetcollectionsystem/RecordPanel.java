@@ -1,11 +1,13 @@
 package com.example.andodatasetcollectionsystem;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,10 +22,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
@@ -48,6 +52,7 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
     BluetoothSocket socket;
     LocationManager locationManager;
 
+    String bestProvider;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     TextView rpm;
@@ -154,9 +159,9 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM));
                 String throttle = cursor.getString(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE));
-                String gps1 = cursor.getString(
+                Double gps1 = cursor.getDouble(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1));
-                String gps2 = cursor.getString(
+                Double gps2 = cursor.getDouble(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2));
                 //text.append(milliToString(datetime) + ": " + rpm + " " + throttle + " " + gps1 + " " + gps2 + "\n");
                 text.append(milliToString(datetime));
@@ -190,9 +195,13 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
+    protected void onStart(){
+        super.onStart();
         locationStart();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
 
         DbHelper dbHelper = new DbHelper(this);
         db = dbHelper.getWritableDatabase();
@@ -211,6 +220,7 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
 
         Button button = findViewById(R.id.button2);
         Button saveButton = findViewById(R.id.button3);
+        Button deleteButton = findViewById(R.id.button5);
         TextView textView1 = findViewById(R.id.textView5);
 
 
@@ -293,6 +303,16 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
                 Log.i("RecordPanel","pushed");
             }
         }
+
+        class DbDeleteOnClickListener implements View.OnClickListener{
+            @Override
+            public void onClick(View view) {
+                db = dbHelper.getReadableDatabase();
+                deleteDatabase(dbHelper.DATABASE_NAME);
+                Log.i("delete","pushed");
+            }
+        }
+
         class DbShowOnClickListener implements View.OnClickListener {
 
             @Override
@@ -331,9 +351,9 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_RPM));
                     String throttle = cursor.getString(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_THROTTLE));
-                    String gps1 = cursor.getString(
+                    double gps1 = cursor.getDouble(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_1));
-                    String gps2 = cursor.getString(
+                    double gps2 = cursor.getDouble(
                             cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_GPS_2));
                     text.append(milliToString(datetime) + ": " + rpm + " " + throttle + " " + gps1 + " " + gps2 + "\n");
                 }
@@ -341,6 +361,9 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
                 textView1.setText(text.toString());
             }
         }
+
+        DbDeleteOnClickListener deleteOnClickListener = new DbDeleteOnClickListener();
+        deleteButton.setOnClickListener(deleteOnClickListener);
 
         ObdOnClickListener onClickListener = new ObdOnClickListener();
         imageButton.setOnClickListener(onClickListener);
@@ -364,10 +387,38 @@ public class RecordPanel extends AppCompatActivity implements LocationListener {
         return sdf.format(mill);
     }
 
-    @SuppressLint("MissingPermission")
-    private void locationStart(){
+    private void initLocationManager() {
+        // インスタンス生成
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, this);
+
+        // 詳細設定
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        criteria.setSpeedRequired(false);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setCostAllowed(false);
+        criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+        criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+        bestProvider = locationManager.getBestProvider(criteria, true);
+    }
+
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // パーミッションの許可を取得する
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+        }
+    }
+
+    private void locationStart(){
+        checkPermission();
+        initLocationManager();
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(bestProvider,
+                500, 1, this);
     }
 
     @SuppressLint("MissingPermission")

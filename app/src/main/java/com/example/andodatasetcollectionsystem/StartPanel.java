@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -30,15 +32,27 @@ public class StartPanel extends AppCompatActivity {
         new ActivityResultContracts.RequestMultiplePermissions(), isGranted -> {
             });
 
-    //Snackbar mySnackbar = Snackbar.make(findViewById(R.id.), R.string.popup_message_for_debug_mode, Snackbar.LENGTH_LONG);
+    BluetoothAdapter bluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 3;
 
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onStart(){
+        super.onStart();
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         for (String perm : PERMISSIONS) {
-            if (ActivityCompat.checkSelfPermission(this, perm)
+            if(ActivityCompat.checkSelfPermission(this, perm)
                     == PackageManager.PERMISSION_GRANTED) {
                 // It's already permitted.
             } else {

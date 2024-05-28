@@ -15,5 +15,6 @@
     <string name="save_button">save</string>
     <string name="stop_button">stop</string>
     <string name="start_button">start</string>
+    <string name="delete_button">delete</string>
     <string name="popup_message_for_debug_mode">debug-mode on</string>
 </resources>
